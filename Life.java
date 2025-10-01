@@ -38,9 +38,14 @@ public class Life {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
-        MainRect bg = new MainRect(new Point(0,0), new Dimension(500,500), Color.decode("#0b0a0c"));
+        MainRect rect = new MainRect();
+        rect.setPixel(new Point(0,0), new Point(0,1));
+        rect.setPixel(new Point(0,0), new Point(1,2));
+        rect.setPixel(new Point(0,0), new Point(2,0));
+        rect.setPixel(new Point(0,0), new Point(2,1));
+        rect.setPixel(new Point(0,0), new Point(2,2));
 
-        frame.add(bg, BorderLayout.CENTER);
+        frame.add(rect, BorderLayout.CENTER);
 
         frame.pack();
         showFrameOnScreen(frame, targetMonitorIndex);

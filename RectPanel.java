@@ -5,88 +5,103 @@ import java.awt.Color;
 import javax.swing.JPanel;
 
 class MainRect extends JPanel {
-    private Point pos;
-    private Dimension size;
-    private Color color;
+    protected final Color bgColor = Color.decode("#0d0a0c");
+    private final int chunkGridSize = 1;
+    protected final int chunkSize = 32;
+    protected final int pixelSizePx = 12;
+    protected final Color pixelColor = Color.decode("#aaaaaa");
+    private Chunk[][] chunkGrid;
 
-    private final int gridSize = 4;
-    private final int chunkSize = 8;
-    private Chunk[][] grid;
+    private final Point pos = new Point(0,0);
+    private final Dimension size = new Dimension(chunkGridSize * chunkSize * pixelSizePx, chunkGridSize * chunkSize * pixelSizePx);
 
-    public MainRect(Point pos, Dimension size, Color color) {
-        this.pos = pos;
-        this.size = size;
-        this.color = color;
+    public MainRect() {
+        setPreferredSize(this.size);
 
-        setPreferredSize(size);
-
-        this.grid = new Chunk[gridSize][gridSize];
-        for (int y = 0; y < this.gridSize; ++y) {
-            for (int x = 0; x < this.gridSize; ++x) {
-                this.grid[y][x] = new Chunk(new Point(13 * chunkSize * x,13 * chunkSize * y), this.chunkSize);
+        this.chunkGrid = new Chunk[chunkGridSize][chunkGridSize];
+        for (int y = 0; y < this.chunkGridSize; ++y) {
+            for (int x = 0; x < this.chunkGridSize; ++x) {
+                this.chunkGrid[y][x] = new Chunk(this, new Point(pixelSizePx * chunkSize * x,pixelSizePx * chunkSize * y), this.chunkSize);
             }
         }
+    }
+
+    public void setPixel(Point chunkIndex, Point pixelIndex) {
+        this.chunkGrid[chunkIndex.x][chunkIndex.y].state = true;
+        this.chunkGrid[chunkIndex.x][chunkIndex.y].pixelGrid[pixelIndex.x][pixelIndex.y].state = true;
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        g.setColor(this.color);
+        g.setColor(bgColor);
         g.fillRect(this.pos.x, this.pos.y, this.size.width, this.size.height);
 
-        for (int y = 0; y < this.gridSize; ++y) {
-            for (int x = 0; x < this.gridSize; ++x) {
-                this.grid[y][x].paintComponent(g);
+        for (int y = 0; y < this.chunkGridSize; ++y) {
+            for (int x = 0; x < this.chunkGridSize; ++x) {
+                if (this.chunkGrid[y][x].state) {
+                    this.chunkGrid[y][x].draw(g);
+                }
             }
         }
     }
 }
 
-class Chunk extends JPanel {
+class Chunk {
+    protected MainRect parent;
     protected Point pos;
-    protected int size;
+    protected boolean state = false;
 
-    private Pixel[][] grid;
+    protected Pixel[][] pixelGrid;
 
-    public Chunk(Point pos, int size) {
+    public Chunk(MainRect parent, Point pos, int size) {
+        this.parent = parent;
         this.pos = pos;
-        this.size = size;
-        setPreferredSize(new Dimension(this.size, this.size));
 
-        this.grid = new Pixel[this.size][this.size];
-        for (int y = 0; y < this.size; ++y) {
-            for (int x = 0; x < this.size; ++x) {
-                this.grid[y][x] = new Pixel(new Point(12 * x, 12 * y), 10, Color.decode("#ff8888"));
+        this.pixelGrid = new Pixel[this.parent.chunkSize][this.parent.chunkSize];
+        for (int y = 0; y < this.parent.chunkSize; ++y) {
+            for (int x = 0; x < this.parent.chunkSize; ++x) {
+                this.pixelGrid[y][x] = new Pixel(this, new Point(this.parent.pixelSizePx * x, this.parent.pixelSizePx * y), this.parent.pixelSizePx - 2, this.parent.pixelColor);
             }
         }
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        for (int y = 0; y < this.size; ++y) {
-            for (int x = 0; x < this.size; ++x) {
-                this.grid[y][x].draw(g, this.pos);
+    protected void draw(Graphics g) {
+        for (int y = 0; y < this.parent.chunkSize; ++y) {
+            for (int x = 0; x < this.parent.chunkSize; ++x) {
+                if (this.pixelGrid[y][x].state) {
+                    this.pixelGrid[y][x].draw(g);
+                }
             }
         }
     }
 }
 
 class Pixel extends JPanel {
+    private Chunk parent;
     private Point pos;
     private int size;
     private Color color;
 
-    public Pixel(Point pos, int size, Color color) {
+    protected boolean state = false;
+
+    public Pixel(Chunk parent, Point pos, int size, Color color) {
+        this.parent = parent;
         this.pos = pos;
         this.size = size;
         this.color = color;
 
-        setPreferredSize(new Dimension(size, size));
+        setPreferredSize(new Dimension(this.size, this.size));
     }
 
-    protected void draw(Graphics g, Point parentPos) {
-        g.setColor(this.color);
-        g.fillRect(parentPos.x + this.pos.x, parentPos.y + this.pos.y, this.size, this.size);
+    protected void draw(Graphics g) {
+        if (this.state) {
+            g.setColor(this.color);
+            g.fillRect(this.parent.pos.x + this.pos.x, this.parent.pos.y + this.pos.y, this.size, this.size);
+        } else {
+            g.setColor(this.parent.parent.bgColor);
+            g.fillRect(this.parent.pos.x + this.pos.x, this.parent.pos.y + this.pos.y, this.size, this.size);
+        }
     }
 }
