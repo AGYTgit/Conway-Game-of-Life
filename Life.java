@@ -1,7 +1,6 @@
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,7 +11,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Color;
 import java.awt.BorderLayout;
-import javax.swing.SwingUtilities;
 
 public class Life {
     static int targetMonitorIndex = 1;
@@ -40,7 +38,7 @@ public class Life {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
-        RectPanel bg = new RectPanel(new Point(0,0), new Dimension(500,500), Color.decode("#0b0a0c"));
+        MainRect bg = new MainRect(new Point(0,0), new Dimension(500,500), Color.decode("#0b0a0c"));
 
         frame.add(bg, BorderLayout.CENTER);
 
