@@ -34,21 +34,28 @@ public class Life {
     }
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Conway's Game of Life");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new BorderLayout());
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                JFrame frame = new JFrame("Conway's Game of Life");
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setLayout(new BorderLayout());
 
-        MainRect rect = new MainRect();
-        rect.setPixel(new Point(0,0), new Point(0,1));
-        rect.setPixel(new Point(0,0), new Point(1,2));
-        rect.setPixel(new Point(0,0), new Point(2,0));
-        rect.setPixel(new Point(0,0), new Point(2,1));
-        rect.setPixel(new Point(0,0), new Point(2,2));
+                MainRect rect = new MainRect();
+                rect.setPixel(new Point(0,0), new Point(0,1));
+                rect.setPixel(new Point(0,0), new Point(1,2));
+                rect.setPixel(new Point(0,0), new Point(2,0));
+                rect.setPixel(new Point(0,0), new Point(2,1));
+                rect.setPixel(new Point(0,0), new Point(2,2));
 
-        frame.add(rect, BorderLayout.CENTER);
+                rect.simulate();
 
-        frame.pack();
-        showFrameOnScreen(frame, targetMonitorIndex);
-        frame.setVisible(true);
+                frame.add(rect, BorderLayout.CENTER);
+
+                frame.pack();
+                showFrameOnScreen(frame, targetMonitorIndex);
+                frame.setVisible(true);
+            }
+        });
     }
 }
