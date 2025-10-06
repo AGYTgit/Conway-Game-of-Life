@@ -49,13 +49,12 @@ class MainRect extends JPanel {
     }
 
     private int getNeighbours(int cx, int cy, int px, int py) {
-        int pxFN = (++pixelFlip) % 2;
-        // ++pxFN %= 2;
-        return 0;
+        int pxFN = (pixelFlip++) % 2;
+        return 3;
     }
 
     public void simulate() {
-        this.pixelFlip = (++pixelFlip) % 2;
+        this.pixelFlip = (pixelFlip++) % 2;
         for (int cy = 0; cy < this.chunkGridSize; ++cy) {
             for (int cx = 0; cx < this.chunkGridSize; ++cx) {
                 if (this.chunkGrid[cy][cx].state) {
@@ -94,7 +93,7 @@ class Chunk {
         for (int y = 0; y < this.parent.chunkSize; ++y) {
             for (int x = 0; x < this.parent.chunkSize; ++x) {
                 this.pixelGrid[y][x][parent.pixelFlip] = new Pixel(this, new Point(this.parent.pixelSizePx * x, this.parent.pixelSizePx * y), this.parent.pixelSizePx - 2, this.parent.pixelColor);
-                // FIX: needs declaration for pixels on 3rd dimension
+                this.pixelGrid[y][x][(parent.pixelFlip + 1) % 2] = new Pixel(this, new Point(this.parent.pixelSizePx * x, this.parent.pixelSizePx * y), this.parent.pixelSizePx - 2, this.parent.pixelColor);
             }
         }
     }
@@ -130,10 +129,9 @@ class Pixel extends JPanel {
     protected void draw(Graphics g) {
         if (this.state) {
             g.setColor(this.color);
-            g.fillRect(this.parent.pos.x + this.pos.x, this.parent.pos.y + this.pos.y, this.size, this.size);
         } else {
             g.setColor(this.parent.parent.bgColor);
-            g.fillRect(this.parent.pos.x + this.pos.x, this.parent.pos.y + this.pos.y, this.size, this.size);
         }
+        g.fillRect(this.parent.pos.x + this.pos.x, this.parent.pos.y + this.pos.y, this.size, this.size);
     }
 }
