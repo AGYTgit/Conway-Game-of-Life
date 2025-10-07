@@ -28,8 +28,8 @@ class MainRect extends JPanel {
     }
 
     public void setPixel(Point chunkIndex, Point pixelIndex) {
-        this.chunkGrid[chunkIndex.x][chunkIndex.y].state = true;
-        this.chunkGrid[chunkIndex.x][chunkIndex.y].pixelGrid[pixelIndex.x][pixelIndex.y][this.pixelFlip].state = true;
+        this.chunkGrid[chunkIndex.x][chunkIndex.y].state = 1;
+        this.chunkGrid[chunkIndex.x][chunkIndex.y].pixelGrid[pixelIndex.x][pixelIndex.y][this.pixelFlip].state = 1;
     }
 
     @Override
@@ -41,7 +41,7 @@ class MainRect extends JPanel {
 
         for (int y = 0; y < this.chunkGridSize; ++y) {
             for (int x = 0; x < this.chunkGridSize; ++x) {
-                if (this.chunkGrid[y][x].state) {
+                if (this.chunkGrid[y][x].state == 1) {
                     this.chunkGrid[y][x].draw(g);
                 }
             }
@@ -50,24 +50,52 @@ class MainRect extends JPanel {
 
     private int getNeighbours(int cx, int cy, int px, int py) {
         int pxFN = (pixelFlip++) % 2;
-        return 3;
+
+        int minY = -1;
+        int minX = -1;
+        int maxY = 2;
+        int maxX = 2;
+
+        int size = this.chunkSize;
+
+        int neighbours = 0;
+
+        switch (px) {
+            case 0: { minX++; break; } case 32: { maxX--; break; }
+        }
+
+        switch (py) {
+            case 0: { minY++; break; }
+            case 32: { maxY--; break; }
+        }
+
+        for (int y = minY; y < maxY; ++y) {
+            for (int x = minX; x < maxX; ++x) {
+                neighbours += this.chunkGrid[cy][cx].pixelGrid[y][x][pxFN].state;
+                System.out.println(cx + "" + cy + "" + x + "" + y + " " + neighbours);
+            }
+        }
+        neighbours -= this.chunkGrid[cy][cx].pixelGrid[py][px][pxFN].state;
+
+        return neighbours;
     }
 
     public void simulate() {
         this.pixelFlip = (pixelFlip++) % 2;
         for (int cy = 0; cy < this.chunkGridSize; ++cy) {
             for (int cx = 0; cx < this.chunkGridSize; ++cx) {
-                if (this.chunkGrid[cy][cx].state) {
+                if (this.chunkGrid[cy][cx].state == 1) {
                     for (int py = 0; py < this.chunkGridSize; ++py) {
                         for (int px = 0; px < this.chunkGridSize; ++px) {
                             int n = getNeighbours(cx, cy, px, py);
-                            if (this.chunkGrid[cy][cx].pixelGrid[py][px][this.pixelFlip].state) {
+                            System.out.println(cx + "" + cy + "" + px + "" + py + "" + n);
+                            if (this.chunkGrid[cy][cx].pixelGrid[py][px][this.pixelFlip].state == 1) {
                                 if (n <= 1 || n >= 4) {
-                                    this.chunkGrid[cy][cx].pixelGrid[py][px][this.pixelFlip].state = false;
+                                    this.chunkGrid[cy][cx].pixelGrid[py][px][this.pixelFlip].state = 0;
                                 }
                             } else {
                                 if (n >= 3) {
-                                    this.chunkGrid[cy][cx].pixelGrid[py][px][this.pixelFlip].state = true;
+                                    this.chunkGrid[cy][cx].pixelGrid[py][px][this.pixelFlip].state = 1;
                                 }
                             }
                         }
@@ -81,7 +109,7 @@ class MainRect extends JPanel {
 class Chunk {
     protected MainRect parent;
     protected Point pos;
-    protected boolean state = false;
+    protected int state = 0;
 
     protected Pixel[][][] pixelGrid;
 
@@ -101,7 +129,7 @@ class Chunk {
     protected void draw(Graphics g) {
         for (int y = 0; y < this.parent.chunkSize; ++y) {
             for (int x = 0; x < this.parent.chunkSize; ++x) {
-                if (this.pixelGrid[y][x][parent.pixelFlip].state) {
+                if (this.pixelGrid[y][x][parent.pixelFlip].state == 1) {
                     this.pixelGrid[y][x][parent.pixelFlip].draw(g);
                 }
             }
@@ -115,7 +143,7 @@ class Pixel extends JPanel {
     private int size;
     private Color color;
 
-    protected boolean state = false;
+    protected int state = 0;
 
     public Pixel(Chunk parent, Point pos, int size, Color color) {
         this.parent = parent;
@@ -127,7 +155,7 @@ class Pixel extends JPanel {
     }
 
     protected void draw(Graphics g) {
-        if (this.state) {
+        if (this.state == 1) {
             g.setColor(this.color);
         } else {
             g.setColor(this.parent.parent.bgColor);
